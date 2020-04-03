@@ -38,7 +38,7 @@ int main(int argc, const char *argv[])
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
+    bool bVis = true;            // visualize results
 
     /* MAIN LOOP OVER ALL IMAGES */
 
@@ -53,9 +53,10 @@ int main(int argc, const char *argv[])
 
         // load image from file and convert to grayscale
         cv::Mat img, imgGray;
+        
         img = cv::imread(imgFullFilename);
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
-
+  
         //// STUDENT ASSIGNMENT
         //// TASK MP.1 -> replace the following code with ring buffer of size dataBufferSize
 
@@ -163,9 +164,15 @@ int main(int argc, const char *argv[])
             bVis = true;
             if (bVis)
             {
-                cv::Mat matchImg = ((dataBuffer.end() - 1)->cameraImg).clone();
-                cv::drawMatches((dataBuffer.end() - 2)->cameraImg, (dataBuffer.end() - 2)->keypoints,
-                                (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
+                cv::Mat cameraImg1 = (dataBuffer.end() - 1)->cameraImg;
+                cv::Mat cameraImg2 = (dataBuffer.end() - 2)->cameraImg;
+                cv::Mat matchImg   = cameraImg1.clone();
+
+                auto keypoints1 = (dataBuffer.end() - 1)->keypoints;
+                auto keypoints2 = (dataBuffer.end() - 2)->keypoints;
+
+                cv::drawMatches(cameraImg2, keypoints2,
+                                cameraImg1, keypoints1,
                                 matches, matchImg,
                                 cv::Scalar::all(-1), cv::Scalar::all(-1),
                                 vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
