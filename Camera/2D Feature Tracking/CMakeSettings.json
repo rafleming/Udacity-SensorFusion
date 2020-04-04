@@ -12,13 +12,46 @@
       "ctestCommandArgs": "",
       "variables": [
         {
-          "name": "OpenCV_DIR",
-          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.1/build",
+          "name": "OpenCV_LIBRARIES",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.2/build/bin/Debug",
           "type": "PATH"
         },
         {
+          "name": "OpenCV_DIR",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.2/build",
+          "type": "PATH"
+        },
+        {
+          "name": "Boost_INCLUDE_DIR",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/Boost 1.72",
+          "type": "PATH"
+        }
+      ]
+    },
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
           "name": "OpenCV_LIBRARIES",
-          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.1/build/x64/vc15/bin",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.2/build/bin/Release",
+          "type": "PATH"
+        },
+        {
+          "name": "OpenCV_DIR",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/OpenCV 4.2/build",
+          "type": "PATH"
+        },
+        {
+          "name": "Boost_INCLUDE_DIR",
+          "value": "C:/Users/rflem/source/repos/_3rdParty/Boost 1.72",
           "type": "PATH"
         }
       ]
