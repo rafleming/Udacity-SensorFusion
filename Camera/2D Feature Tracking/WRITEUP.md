@@ -17,7 +17,7 @@ Here.
 *Implement a vector for dataBuffer objects whose size does not exceed a limit (e.g. 2 elements). This can be achieved by pushing in new elements on one end and removing elements on the other end.*
 
 MidTermProject_Camera_Student.cpp
-```
+```cpp
 int dataBufferSize = 2;      
     
 // list of data frames which are held in memory at the same time
@@ -30,12 +30,12 @@ circularDataBuffer.set_capacity(dataBufferSize);
 *Implement detectors HARRIS, FAST, BRISK, ORB, AKAZE, and SIFT and make them selectable by setting a string accordingly.*
 
 MidTermProject_Camera_Student.cpp
-```
+```cpp
 double t = detectKeypoints(detectorType, keypoints, imgGray, false);
 ```
 
 matching2D_Student.cpp
-```
+```cpp
 double detectKeypoints(const std::string& detectorType, vector<cv::KeyPoint>& keypoints, cv::Mat& imgGray, bool bVis)
 {
     double t = 0;
@@ -59,7 +59,7 @@ double detectKeypoints(const std::string& detectorType, vector<cv::KeyPoint>& ke
 }
 ```
 
-```
+```cpp
 // Detect keypoints in image using the traditional Harris detector
 double detectKeypointsHarris(std::vector<cv::KeyPoint>& keypoints, cv::Mat& img)
 {
@@ -161,7 +161,7 @@ double detectKeypointsModern(std::vector<cv::KeyPoint>& keypoints, cv::Mat& img,
 
 MidTermProject_Camera_Student.cpp
 
-```
+```cpp
 // only keep keypoints on the preceding vehicle
 bool bFocusOnVehicle = true;
 
@@ -186,14 +186,14 @@ if (bFocusOnVehicle)
 *Implement descriptors BRIEF, ORB, FREAK, AKAZE and SIFT and make them selectable by setting a string accordingly.*
 
 MidTermProject_Camera_Student.cpp
-```
+```cpp
 string descriptorType = "BRIEF"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
 t = descKeypoints(descriptorType, (circularDataBuffer.end() - 1)->keypoints, (circularDataBuffer.end() - 1)->cameraImg, descriptors);
 cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 ```
 
 matching2D_Student.cpp
-```
+```cpp
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
 double descKeypoints(const string& descriptorType, vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors)
 {
@@ -246,7 +246,7 @@ double descKeypoints(const string& descriptorType, vector<cv::KeyPoint> &keypoin
 *Implement FLANN matching as well as k-nearest neighbor selection. Both methods must be selectable using the respective strings in the main function.*
 
 matching2D_Student.cpp
-```
+```cpp
 if (matcherType.compare("MAT_BF") == 0)
 {
     int normType = cv::NORM_HAMMING;
@@ -270,7 +270,7 @@ else if (matcherType.compare("MAT_FLANN") == 0)
 *Use the K-Nearest-Neighbor matching to implement the descriptor distance ratio test, which looks at the ratio of best vs. second-best match to decide whether to keep an associated pair of keypoints.*
 
 matching2D_Student.cpp
-```
+```cpp
 // k nearest neighbors (k=2)
 vector<vector<cv::DMatch>> knn_matches;
 matcher->knnMatch(descSource, descRef, knn_matches, 2);
