@@ -7,6 +7,9 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+
+#include <boost/circular_buffer.hpp>
+
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -28,7 +31,8 @@ int main(int argc, const char *argv[])
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location
-    string dataPath = "../";
+    string dataPath = "../../../";
+    //string dataPath = "../";
 
     // camera
     string imgBasePath = dataPath + "images/";
@@ -70,13 +74,18 @@ int main(int argc, const char *argv[])
 
     // misc
     double sensorFrameRate = 10.0 / imgStepWidth; // frames per second for Lidar and camera
-    int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
-    vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
+    
+    // no. of images which are held in memory (ring buffer) at the same time
+    int dataBufferSize = 2;       
+    boost::circular_buffer<DataFrame> dataBuffer;
+    dataBuffer.set_capacity(dataBufferSize);
+
+    // visualize results
+    bool bVis = false;            
 
     /* MAIN LOOP OVER ALL IMAGES */
 
-    for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex+=imgStepWidth)
+    for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex += imgStepWidth)
     {
         /* LOAD IMAGE INTO BUFFER */
 
@@ -129,7 +138,7 @@ int main(int argc, const char *argv[])
         clusterLidarWithROI((dataBuffer.end()-1)->boundingBoxes, (dataBuffer.end() - 1)->lidarPoints, shrinkFactor, P_rect_00, R_rect_00, RT);
 
         // Visualize 3D objects
-        bVis = true;
+        bVis = false;
         if(bVis)
         {
             show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(2000, 2000), true);
@@ -138,10 +147,7 @@ int main(int argc, const char *argv[])
 
         cout << "#4 : CLUSTER LIDAR POINT CLOUD done" << endl;
         
-        
-        // REMOVE THIS LINE BEFORE PROCEEDING WITH THE FINAL PROJECT
-        continue; // skips directly to the next image without processing what comes beneath
-
+  
         /* DETECT IMAGE KEYPOINTS */
 
         // convert current image to grayscale
@@ -152,14 +158,8 @@ int main(int argc, const char *argv[])
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
         string detectorType = "SHITOMASI";
 
-        if (detectorType.compare("SHITOMASI") == 0)
-        {
-            detKeypointsShiTomasi(keypoints, imgGray, false);
-        }
-        else
-        {
-            //...
-        }
+        double t = detectKeypoints(detectorType, keypoints, imgGray, false);
+        std::cout << detectorType << " detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
         // optional : limit number of keypoints (helpful for debugging and learning)
         bool bLimitKpts = false;
@@ -185,7 +185,9 @@ int main(int argc, const char *argv[])
 
         cv::Mat descriptors;
         string descriptorType = "BRISK"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
-        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+       
+        t = descKeypoints(descriptorType, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors);
+        cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 
         // push descriptors for current frame to end of data buffer
         (dataBuffer.end() - 1)->descriptors = descriptors;
@@ -199,9 +201,9 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            string matcherType      = "MAT_BF";         // MAT_BF, MAT_FLANN
+            string descriptorType   = "DES_BINARY";     // DES_BINARY, DES_HOG
+            string selectorType     = "SEL_KNN";        // SEL_NN, SEL_KNN
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
@@ -253,6 +255,8 @@ int main(int argc, const char *argv[])
                 // compute TTC for current match
                 if( currBB->lidarPoints.size()>0 && prevBB->lidarPoints.size()>0 ) // only compute TTC if we have Lidar points
                 {
+                    std::cout << "HERE" << endl;
+
                     //// STUDENT ASSIGNMENT
                     //// TASK FP.2 -> compute time-to-collision based on Lidar data (implement -> computeTTCLidar)
                     double ttcLidar; 
@@ -263,7 +267,7 @@ int main(int argc, const char *argv[])
                     //// TASK FP.3 -> assign enclosed keypoint matches to bounding box (implement -> clusterKptMatchesWithROI)
                     //// TASK FP.4 -> compute time-to-collision based on camera (implement -> computeTTCCamera)
                     double ttcCamera;
-                    clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
+                    clusterKptMatchesWithROI(*currBB, *prevBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
                     //// EOF STUDENT ASSIGNMENT
 
