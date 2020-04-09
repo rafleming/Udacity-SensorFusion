@@ -15,7 +15,7 @@ add_definitions(${OpenCV_DEFINITIONS})
 
 find_package(BOOST 1.72 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(foo ${Boost_LIBRARIES})
+target_link_libraries(foo ${Boost_LIBRARIES})  
 
 # Executable for create matrix exercise
 add_executable (3D_object_tracking src/camFusion_Student.cpp src/FinalProject_Camera.cpp src/lidarData.cpp src/matching2D_Student.cpp src/objectDetection2D.cpp)
