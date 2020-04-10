@@ -122,7 +122,7 @@ void show3DObjects(std::vector<BoundingBox>& boundingBoxes, cv::Size worldSize, 
 
     // display image
     string windowName = "3D Objects";
-    cv::namedWindow(windowName, 1);
+    cv::namedWindow(windowName, cv::WINDOW_KEEPRATIO);
     cv::imshow(windowName, topviewImg);
 
     if (bWait)

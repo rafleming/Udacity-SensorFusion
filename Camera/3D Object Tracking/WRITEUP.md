@@ -1,6 +1,6 @@
 # SFND 3D Object Tracking
 
-<img src="images/sample.png" width="820" height="248" />
+<img src="images/sample.gif" />
 
 
 ## Final Project Write-Up
@@ -275,19 +275,135 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
 
 #
 ### FP.5 Performance Evaluation 1
-*IFind examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened.*
+*Find examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened.*
 
 
-```cpp
+#### Example 1.  
+One example of why the lidar only TTC calculation appears to be incorrect can be found by examining the top-view lidar images between frames 5 and 6 as shown below.
 
-```
+<img src="images/Lidar/lidar-top-view-5.png" />
+frame 5.
+
+<img src="images/Lidar/lidar-top-view-6.png" />
+frame 6.
+
+The lidar TTC at frame 6 I believe is lower than expected due to the outliers on the preceding frame 5 (these can be observed above the 2m line distance marker), resulting in a higher mean X value for frame 5. 
+
+As these points are not observed in frame 6, the resulting TTC is lower than expected at 7.49s.   
+
+<img src="images/Camera/camera-6.png" />
+
+#### Example 2.  
+
+A further example of a lidar TTC calculation that does not seem plausible can be found between frames 6 and 7.
+
+<img src="images/Lidar/lidar-top-view-6.png" />
+frame 6.
+
+<img src="images/Lidar/lidar-top-view-7.png" />
+frame 7.
+
+In frame 7 the lidar appears to have captured points on the left-rear wheel arch of the preceding vehicle that were not captured in frame 6. This results in a larger mean x distance in frame 7 than would have been calculated otherwise which in turn results in a much higher TTC of 42.97s.
+
+<img src="images/Camera/camera-7.png" />
+
 
 #
 ### FP.6 Performance Evaluation 2
 *Run several detector / descriptor combinations and look at the differences in TTC estimation. Find out which methods perform best and also include several examples where camera-based TTC estimation is way off. As with Lidar, describe your observations again and also look into potential reasons.*
 
+From the mid-term project the top 3 detector/descriptor combinations were identfied. These have been used here in order to compare the differences in TTC for each for both lidar and camera calculations and in doing so it was possible to identify cases where the camera-based TTC estimation was inconsistent.
+
+|     Place      |            Combination                     | 
+|  ------------  |           -------------                    |
+|   1st    | FAST + BRIEF | 
+|   2nd    | FAST + BRISK |    
+|   3nd    | FAST + ORB | 
+
+#### 1. FAST + BRIEF
+
+|     Frame      |            LiDAR TTC (s)    | Camera TTC (s) |
+|  ------------  |           -------------   |   -------------   |
+|1| 13.60 | 11.78
+|2| 11.66 | 12.19
+|3| 17.46 | 13.77
+|4| 11.62 | 13.20
+|5| 13.31 | **22.29**
+|6| 7.49 | 13.25
+|7| 42.98 | 12.09
+|8| 17.87 | 12.31
+|9| 13.91 | 13.39
+|10| 14.92 | 13.67
+|11| 8.85 | 14.11
+|12| 12.43 | 11.70
+|13| 9.16 | 12.09
+|14| 11.36 | 11.68
+|15| 7.99 | 11.91
+|16| 7.63 | 12.68
+|17| 11.98 | 8.62
+|18| 8.86 | 11.96
+
+
+#### 2. FAST + BRISK
+
+|     Frame      |            LiDAR TTC (s)    | Camera TTC (s) |
+|  ------------  |           -------------   |   -------------   |
+|1| 13.60 | 12.53
+|2| 11.66 | 12.55
+|3| 17.46 | 14.18
+|4| 11.62 | 13.28
+|5| 13.31 | **inf**
+|6| 7.49 | 13.34
+|7| 42.98 | 11.96
+|8| 17.87 | 11.89
+|9| 13.91 | 12.11
+|10| 14.92 | 13.74
+|11| 8.85 | 13.60
+|12| 12.43 | 12.71
+|13| 9.16 | 12.48
+|14| 11.36 | 11.60
+|15| 7.99 | 12.26
+|16| 7.63 | 12.79
+|17| 11.98 | 9.93
+|18| 8.86 | 11.96
+
+
+#### 3. FAST + ORB
+
+|     Frame      |            LiDAR TTC (s)    | Camera TTC (s) |
+|  ------------  |           -------------   |   -------------   |
+|1| 13.60 | 12.01
+|2| 11.66 | 11.52
+|3| 17.46 | 14.41
+|4| 11.62 | 13.96
+|5| 13.31 | **159.61**
+|6| 7.49 | 13.40
+|7| 42.98 | 12.84
+|8| 17.87 | 12.60
+|9| 13.91 | 13.35
+|10| 14.92 | 14.42
+|11| 8.85 | 17.82
+|12| 12.43 | 11.70
+|13| 9.16 | 12.64
+|14| 11.36 | 11.60
+|15| 7.99 | 11.49
+|16| 7.63 | 11.89
+|17| 11.98 | 10.66
+|18| 8.86 | 12.60
+
+
+From the results it can be observed than in frame 5 the camera-based TTC estimate is inconsistent across each of the detector/descriptor combinations. In particular the INF value when using the FAST + BRISK combinations is a result of the condition:
 
 ```cpp
-
+if (!distRatios.empty())
+{
+    ...
+}
+else
+{
+    // we're unable to calculate TTC if the distance ratios are empty
+    TTC = NAN;
+}
 ```
 
+It was noted in this case that this was due to the computed distance ratios not meeting the minumum required distance.
