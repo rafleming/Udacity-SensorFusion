@@ -3,3 +3,7 @@ Camera/2D Feature Tracking/out/
 Camera/3D Object Tracking/out/
 Unscented Kalman Filters/build/
 Unscented Kalman Filters/out/
+Lidar/build/
+Lidar/src/quiz/cluster/build/
+Lidar/src/quiz/ransac/build/CMakeFiles/CMakeDirectoryInformation.cmake
+Lidar/src/quiz/ransac/build/
