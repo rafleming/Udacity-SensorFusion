@@ -1,2 +1,2 @@
-# sensor-fusion
-Udacity Sensor Fusion Nanodegree 
+# Udacity Sensor Fusion Nanodegree
+Coursework repository for the Udacity SFND.
