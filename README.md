@@ -43,6 +43,6 @@ Analyze radar signatures to detect and track objects. Calculate velocity and ori
 #
 ## Project 5. Kalman Filters
 
-Data from multiple sources was used to build Kalman filters, both extended and unscented to track nonlinear movement.
+Data from multiple sources used to build Kalman filters, both extended and unscented to track nonlinear movement.
 
 <img src="Unscented Kalman Filters/media/ukf_highway_tracked.gif"/>
